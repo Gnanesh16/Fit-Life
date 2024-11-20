@@ -5,6 +5,8 @@ pipeline {
         MAVEN_HOME = '/opt/maven'  // Path to Maven installation
         JAVA_HOME = '/usr/lib/jvm/java-11-openjdk'  // Path to Java installation
         PATH = "$MAVEN_HOME/bin:$JAVA_HOME/bin:$PATH"
+        PYTHON_HOME = '/usr/bin/python3'  // Path to Python installation
+        VIRTUALENV_DIR = 'venv'           // Path for virtual environment
     }
 
     stages {
@@ -23,12 +25,18 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
+        stage('Run Tests') {
             steps {
                 script {
-                    // Running the Maven test command
-                    sh 'mvn test'
+                    // Run the tests using pytest (you could also use unittest)
+                    sh './$VIRTUALENV_DIR/bin/python -m unittest discover'
                 }
+            }
+        }
+
+        stage('Archive Test Results') {
+            steps {
+                archiveArtifacts artifacts: '**/test-*.xml', allowEmptyArchive: true  // Archive test results
             }
         }
 
