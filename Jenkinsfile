@@ -2,9 +2,6 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = '/opt/maven'  // Path to Maven installation
-        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk'  // Path to Java installation
-        PATH = "$MAVEN_HOME/bin:$JAVA_HOME/bin:$PATH"
         PYTHON_HOME = '/usr/bin/python3'  // Path to Python installation
         VIRTUALENV_DIR = 'venv'           // Path for virtual environment
     }
@@ -12,15 +9,17 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo/fitlife-app.git'
+                git 'https://github.com/Gnanesh16/Fit-Life'  // Replace with your repo URL
             }
         }
 
-        stage('Compile') {
+        stage('Set Up Virtual Environment') {
             steps {
                 script {
-                    // Running the Maven clean compile command
-                    sh 'mvn clean compile'
+                    // Create and activate the virtual environment
+                    sh 'python3 -m venv $VIRTUALENV_DIR'
+                    sh './$VIRTUALENV_DIR/bin/pip install --upgrade pip'
+                    sh './$VIRTUALENV_DIR/bin/pip install -r requirements.txt'
                 }
             }
         }
@@ -28,47 +27,34 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Run the tests using pytest (you could also use unittest)
+                    // Run unit tests
                     sh './$VIRTUALENV_DIR/bin/python -m unittest discover'
                 }
             }
         }
 
-        stage('Archive Test Results') {
-            steps {
-                archiveArtifacts artifacts: '**/test-*.xml', allowEmptyArchive: true  // Archive test results
-            }
-        }
-
-        stage('Build') {
+        stage('Package as Executable') {
             steps {
                 script {
-                    // Running the Maven package command to create the artifact (JAR/WAR)
-                    sh 'mvn package'
+                    // Package the app as an executable using PyInstaller
+                    sh './$VIRTUALENV_DIR/bin/pyinstaller --onefile app.py --name fitlife-app'
                 }
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Archive Executable') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deployment stage (optional for code compile job)'
+                archiveArtifacts artifacts: 'dist/fitlife-app', allowEmptyArchive: false
             }
         }
     }
 
     post {
         success {
-            echo 'Build and tests passed!'
+            echo 'Packaging successful!'
         }
-
         failure {
-            echo 'Build or tests failed!'
+            echo 'Build failed!'
         }
     }
 }
