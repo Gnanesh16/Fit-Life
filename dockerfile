@@ -2,10 +2,10 @@
 FROM python:3.9-slim
 
 # Set working directory
-WORKDIR /app
+#WORKDIR /app
 
 # Copy application files
-COPY . /app
+COPY /fitlife-app.spec /usr/local/FitLifeapp
 
 # Install dependencies
 RUN pip install --upgrade pip
