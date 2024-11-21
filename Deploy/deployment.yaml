@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fitlife-deployment
+  labels:
+    app: fitlife
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fitlife
+  template:
+    metadata:
+      labels:
+        app: fitlife
+    spec:
+      containers:
+      - name: fitlife-container
+        image: gnanesh16/fitlife:latest
+        ports:
+        - containerPort: 5000
