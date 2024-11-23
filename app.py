@@ -17,6 +17,11 @@ def workouts():
 @app.route('/diet')
 def diet():
     return render_template('diet.html')
+def home():
+    return "Hello, Flask!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
     app.run(debug=True)
